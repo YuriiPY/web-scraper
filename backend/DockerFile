@@ -1,0 +1,26 @@
+# ./backend/Dockerfile
+
+FROM python:3.12-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    chromium \
+    chromium-driver \
+ && rm -rf /var/lib/apt/lists/*
+
+# requirements.txt should be in ./backend
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# copy the rest of the backend code (including main.py, db/, etc.)
+COPY . .
+
+EXPOSE 8000
+
+# just run your script; it will call uvicorn.run(...) itself
+CMD ["python", "main.py"]
